@@ -1,0 +1,85 @@
+---
+title: "Tamaño de muestra"
+output: html_notebook
+---
+Este es un proyecto para encontrar el tamaño de muestra $(N)$ necesario para tener un error menor o igual a $b$,
+dado un experimento que se comporta como una v.a. $Bernulli(p)$ i.e.
+$N = min_n(abs(\hat{p} - p) \leq b)$
+
+Como primer paso de definen las probabilidades $p$, y el numero de simulaciones $numero\_simulaciones$
+```{r}
+numero_simulaciones <- 10000
+tamanio_muestra_maximo <- 5000
+
+(vector_probabilidades <- seq(0.1, 0.9, by = 0.1))
+
+```
+
+### Simulación usando la función *sample*
+```{r}
+library(ggplot2)
+library(plotly)
+system.time(
+for(p in vector_probabilidades){
+  simulaciones <- matrix(sample(0:1, numero_simulaciones * tamanio_muestra_maximo, prob = c(1 -p, p), replace = T),    tamanio_muestra_maximo, numero_simulaciones)
+  
+  acumulado_simulaciones <- apply(simulaciones, 2, cumsum)
+  
+  parametro_estimado <- acumulado_simulaciones/(1:tamanio_muestra_maximo)
+  
+  grafica_p_estimado <- plot_ly(y = apply(parametro_estimado, 1, mean), x = 1:tamanio_muestra_maximo, type = "scatter", mode = "lines")
+
+  plot(apply(parametro_estimado, 1, mean), main = paste("Estimación del parametro p = ", p), xlab = "Número de asegurados", ylab= "Valor de p", type = "l", col = "blue")
+  
+  error <- abs(parametro_estimado - p)
+
+  plot(apply(error, 1, mean), main = paste("Error al estimar p =", p), xlab = "Número de asegurados", ylab= "Error absoluto", type = "l", col = "blue")
+}
+)
+```
+
+### Simulación usando la función *runif*
+```{r}
+
+system.time(
+for(p in vector_probabilidades){
+  simulacion_uniforme <- runif(numero_simulaciones * tamanio_muestra_maximo)
+  simulaciones <- matrix( ifelse(simulacion_uniforme >= p, 1, 0), tamanio_muestra_maximo, numero_simulaciones)
+
+  acumulado_simulaciones <- apply(simulaciones, 2, cumsum)
+  
+  parametro_estimado <- acumulado_simulaciones/(1:tamanio_muestra_maximo)
+  
+  grafica_p_estimado <- plot_ly(y = apply(parametro_estimado, 1, mean), x = 1:tamanio_muestra_maximo, type = "scatter", mode = "lines")
+
+  plot(apply(parametro_estimado, 1, mean), main = paste("Estimación del parametro p = ", p), xlab = "Número de asegurados", ylab= "Valor de p", type = "l", col = "blue")
+  
+  error <- abs(parametro_estimado - p)
+
+  plot(apply(error, 1, mean), main = paste("Error al estimar p =", p), xlab = "Número de asegurados", ylab= "Error absoluto", type = "l", col = "blue")
+}
+)
+```
+
+### Simulación usando la función *rbinom*
+```{r}
+
+system.time(
+for(p in vector_probabilidades){
+  simulaciones <- matrix( rbinom(numero_simulaciones * tamanio_muestra_maximo, 1, p), tamanio_muestra_maximo, numero_simulaciones)
+
+  acumulado_simulaciones <- apply(simulaciones, 2, cumsum)
+  
+  parametro_estimado <- acumulado_simulaciones/(1:tamanio_muestra_maximo)
+  
+  grafica_p_estimado <- plot_ly(y = apply(parametro_estimado, 1, mean), x = 1:tamanio_muestra_maximo, type = "scatter", mode = "lines")
+
+  plot(apply(parametro_estimado, 1, mean), main = paste("Estimación del parametro p = ", p), xlab = "Número de asegurados", ylab= "Valor de p", type = "l", col = "blue")
+  
+  error <- abs(parametro_estimado - p)
+
+  plot(apply(error, 1, mean), main = paste("Error al estimar p =", p), xlab = "Número de asegurados", ylab= "Error absoluto", type = "l", col = "blue")
+}
+)
+```
+[Presiona aqui para descargar el script](main.Rmd)
