@@ -3,7 +3,7 @@ title: "Tamaño de muestra"
 output: html_notebook
 ---
 Este es un proyecto para encontrar el tamaño de muestra $(N)$ necesario para tener un error menor o igual a $b$,
-dado un experimento que se comporta como una v.a. $Bernulli(p)$ i.e.
+dado un experimento que se comporta como una v.a. $Bernoulli(p)$ i.e.
 $N = min_n(abs(\hat{p} - p) \leq b)$
 
 Como primer paso de definen las probabilidades $p$, y el numero de simulaciones $numero\_simulaciones$
@@ -44,7 +44,7 @@ for(p in vector_probabilidades){
 system.time(
 for(p in vector_probabilidades){
   simulacion_uniforme <- runif(numero_simulaciones * tamanio_muestra_maximo)
-  simulaciones <- matrix( ifelse(simulacion_uniforme >= p, 1, 0), tamanio_muestra_maximo, numero_simulaciones)
+  simulaciones <- matrix( ifelse(simulacion_uniforme <= p, 1, 0), tamanio_muestra_maximo, numero_simulaciones)
 
   acumulado_simulaciones <- apply(simulaciones, 2, cumsum)
   
@@ -82,4 +82,3 @@ for(p in vector_probabilidades){
 }
 )
 ```
-[Presiona aqui para descargar el script](main.Rmd)
